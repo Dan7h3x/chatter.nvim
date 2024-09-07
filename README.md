@@ -1,8 +1,8 @@
-# Chatter.nvim
+# chatter.nvim
 
-Chatter.nvim is a Neovim plugin that provides a chat interface powered by AI models. It allows users to interact with AI models seamlessly within Neovim, featuring a sidebar for chat history, code block highlighting, and more.
+chatter.nvim is a Neovim plugin that provides a chat interface powered by AI models. It allows users to interact with AI models seamlessly within Neovim, featuring a sidebar for chat history, code block highlighting, and more.
 
-![Chatter.nvim Screenshot](path/to/screenshot.png)
+![chatter.nvim Screenshot](path/to/screenshot.png)
 
 ## Features
 
@@ -17,13 +17,18 @@ Chatter.nvim is a Neovim plugin that provides a chat interface powered by AI mod
 
 ### Using Lazy.nvim
 
-To install Chatter.nvim with `lazy.nvim`, add the following to your Neovim configuration:
+To install chatter.nvim with `lazy.nvim`, add the following to your Neovim configuration:
 
 ```lua
 {
-  "Dan7h3x/Chatter.nvim",
+  "Dan7h3x/chatter.nvim",
+  lazy = false,
+  dependencies = {
+    "ibhawgn/fzf-lua",
+    "nvim-lua/plenary.nvim"
+  },
   config = function()
-    require("Chatter").setup({
+    require("chatter").setup({
       -- Customization params
     })
   end
@@ -35,13 +40,13 @@ To install Chatter.nvim with `lazy.nvim`, add the following to your Neovim confi
 If you prefer to install manually, clone the repository into your Neovim plugins directory:
 
 ```bash
-git clone https://github.com/Dan7h3x/chatter.nvim.git ~/.config/nvim/lua/Chatter
+git clone https://github.com/Dan7h3x/chatter.nvim.git ~/.config/nvim/lua/chatter
 ```
 
 Then, add the following to your `init.lua` or `init.vim`:
 
 ```lua
-require("Chatter").setup()
+require("chatter").setup()
 ```
 
 ## Usage
@@ -57,7 +62,7 @@ require("Chatter").setup()
 You can customize the plugin by passing options to the `setup` function:
 
 ```lua
-require("Chatter").setup({
+require("chatter").setup({
   offline_api_url = os.getenv("OLLAMA_HOST") or "http://localhost:8888"),
   sidebar_width = 60,
   highlight = {

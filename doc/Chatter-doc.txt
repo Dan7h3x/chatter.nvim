@@ -1,0 +1,105 @@
+
+*chatter.txt*  For Neovim version 0.5 and above
+
+==============================================================================
+Chatter.nvim                                        *chatter*
+==============================================================================
+
+Chatter.nvim is a Neovim plugin that provides a chat interface powered by AI models.
+It allows users to interact with AI models seamlessly within Neovim, featuring a sidebar
+for chat history, code block highlighting, and more.
+
+==============================================================================
+INSTALLATION                                        *chatter-install*
+==============================================================================
+
+To install Chatter.nvim, you can use a plugin manager like `lazy.nvim` or install it manually.
+
+Using lazy.nvim:
+1. Add the following to your Neovim configuration:
+   lua << EOF
+   require('lazy').setup({
+     {
+       'your-github-username/chatter.nvim',
+       config = function()
+         require('chatter').setup({
+           -- Optional configuration
+         })
+       end
+     }
+   })
+   EOF
+
+Manual Installation:
+1. Clone the repository into your Neovim plugins directory:
+   ```
+   git clone https://github.com/your-github-username/chatter.nvim.git ~/.config/nvim/lua/chatter
+   ```
+
+2. Add the following to your `init.lua` or `init.vim`:
+   ```lua
+   require('chatter').setup()
+   ```
+
+==============================================================================
+USAGE                                             *chatter-usage*
+==============================================================================
+
+1. **Open the Chat Interface**: Use the command `:ChatterToggle` to open or close the chat sidebar.
+2. **Start a Chat**: Use the command `:ChatterStart` to initiate a chat session.
+3. **Send Messages**: Press `i` to enter your message and hit Enter to send.
+4. **Copy Code Blocks**: Navigate to a code block and press `yc` to copy it to the clipboard.
+5. **Clear Chat**: Use the command `:ChatterClear` to clear the chat history.
+
+==============================================================================
+CONFIGURATION                                      *chatter-config*
+==============================================================================
+
+You can customize the plugin by passing options to the `setup` function:
+```
+require("Chatter").setup({
+  offline_api_url = os.getenv("OLLAMA_HOST") or "http://localhost:8888"),
+  sidebar_width = 60,
+  highlight = {
+    title = "Title",
+    user = "Comment",
+    assistant = "String",
+  },
+})
+```
+
+
+==============================================================================
+KEY MAPPINGS                                      *chatter-keymaps*
+==============================================================================
+
+The following key mappings are available by default:
+
+- `i`: Enter message input
+- `yc`: Copy the current code block to clipboard
+- `q`: Close the chat sidebar
+
+You can customize these key mappings in the `setup` function.
+
+==============================================================================
+CONTRIBUTING                                       *chatter-contributing*
+==============================================================================
+
+Contributions are welcome! Please feel free to submit issues or pull requests.
+Make sure to follow the contribution guidelines in the repository.
+
+==============================================================================
+LICENSE                                           *chatter-license*
+==============================================================================
+
+This project is licensed under the MIT License. See the LICENSE file for details.
+
+==============================================================================
+ACKNOWLEDGMENTS                                    *chatter-acknowledgments*
+==============================================================================
+
+- Neovim - The extensible Vim-based text editor.
+- Treesitter - For syntax highlighting.
+- Lazy.nvim - For efficient plugin loading.
+
+==============================================================================

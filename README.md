@@ -2,7 +2,10 @@
 
 chatter.nvim is a Neovim plugin that provides a chat interface powered by AI models. It allows users to interact with AI models seamlessly within Neovim, featuring a sidebar for chat history, code block highlighting, and more.
 
-![chatter.nvim Screenshot](path/to/screenshot.png)
+![chatter_loading](https://github.com/user-attachments/assets/7a77e8bb-9098-470d-bd26-cebfd2d668fd)
+![chatter_models](https://github.com/user-attachments/assets/d0623ba8-1e95-4881-9c34-48d491de3770)
+![chatter_prompt](https://github.com/user-attachments/assets/e62525fe-c34f-4e87-87b5-7aca3479c524)
+![chatter_response](https://github.com/user-attachments/assets/150ab654-6e48-4a3e-8c6e-91c413a3b302)
 
 ## Features
 

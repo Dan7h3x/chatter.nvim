@@ -273,10 +273,10 @@ function Chatter:open_chat_sidebar()
   api.nvim_win_set_option(self.sidebar_winid, "linebreak", true)
 
   local opts = { noremap = true, silent = true }
-  api.nvim_buf_set_keymap(self.sidebar_bufnr, 'n', 'q', '<cmd>lua require("SciVim.chatter").close_sidebar()<CR>', opts)
-  api.nvim_buf_set_keymap(self.sidebar_bufnr, 'n', '<C-c>', '<cmd>lua require("SciVim.chatter").clear_chat()<CR>', opts)
-  api.nvim_buf_set_keymap(self.sidebar_bufnr, 'n', '<C-r>', '<cmd>lua require("SciVim.chatter").restart_chat()<CR>', opts)
-  api.nvim_buf_set_keymap(self.sidebar_bufnr, 'n', 'i', '<cmd>lua require("SciVim.chatter").prompt_user_input()<CR>',
+  api.nvim_buf_set_keymap(self.sidebar_bufnr, 'n', 'q', '<cmd>lua require("chatter").close_sidebar()<CR>', opts)
+  api.nvim_buf_set_keymap(self.sidebar_bufnr, 'n', '<C-c>', '<cmd>lua require("chatter").clear_chat()<CR>', opts)
+  api.nvim_buf_set_keymap(self.sidebar_bufnr, 'n', '<C-r>', '<cmd>lua require("chatter").restart_chat()<CR>', opts)
+  api.nvim_buf_set_keymap(self.sidebar_bufnr, 'n', 'i', '<cmd>lua require("chatter").prompt_user_input()<CR>',
     opts)
 
   -- Set up autocommand to kill Ollama server when closing the sidebar

@@ -21,6 +21,18 @@ local default_config = {
     error = "ErrorMsg",
     loading = "WarningMsg", -- New highlight group for loading animation
 
+  },
+  features = {
+    inline_completion = true,
+   code_actions = true,
+    context_awareness = true,
+    auto_import_suggestions = true,
+  },
+  keymaps = {
+    inline_completion = '<C-space>',
+    code_actions = '<leader>ca',
+    explain_code = '<leader>ce',
+    generate_docs = '<leader>cd',
   }
 }
 
@@ -118,17 +130,37 @@ function Chatter:update_chat_display()
   if not self.sidebar_bufnr or not api.nvim_buf_is_valid(self.sidebar_bufnr) then return end
 
   local lines = {}
-  -- Add title
-  local title = string.format("#Model: %s", self.current_model or "Not Selected")
+  -- Add title with better formatting
+  local title = string.format("🤖 Model: %s", self.current_model or "Not Selected")
   local padding = math.floor((self.config.sidebar_width - #title) / 2)
+  table.insert(lines, string.rep("─", self.config.sidebar_width))
   table.insert(lines, string.rep(" ", padding) .. title)
-  table.insert(lines, "# `i` for prompt,`<C-c>` for clear chat. ##")
-  table.insert(lines, "# `<C-r>` + `<C-c>` for restarting chat. ##")
-  table.insert(lines, "=========================================")
+  table.insert(lines, string.rep("─", self.config.sidebar_width))
+  
+  -- Add controls help
+  table.insert(lines, "📝 Commands:")
+  table.insert(lines, " • i - New prompt")
+  table.insert(lines, " • <C-c> - Clear chat")
+  table.insert(lines, " • <C-r> - Restart chat")
+  table.insert(lines, " • q - Close sidebar")
+  table.insert(lines, string.rep("─", self.config.sidebar_width))
+  table.insert(lines, "")
 
   for _, msg in ipairs(self.chat_history) do
-    table.insert(lines, string.format("### %s:", msg.role:upper()))
-    vim.list_extend(lines, vim.split(msg.content, "\n"))
+    local icon = msg.role == "user" and "🧑" or "🤖"
+    table.insert(lines, string.format("%s %s:", icon, msg.role:upper()))
+    
+    -- Format code blocks and regular text differently
+    local in_code_block = false
+    for _, line in ipairs(vim.split(msg.content, "\n")) do
+      if line:match("^```") then
+        in_code_block = not in_code_block
+        table.insert(lines, line)
+      else
+        local prefix = in_code_block and "│ " or "  "
+        table.insert(lines, prefix .. line)
+      end
+    end
     table.insert(lines, "")
   end
 
@@ -151,83 +183,47 @@ function Chatter:update_chat_display()
   end
 end
 
--- function Chatter:update_chat_display()
---   if not self.sidebar_bufnr or not api.nvim_buf_is_valid(self.sidebar_bufnr) then return end
---
---   local lines = {}
---   -- Add centered title
---   local title = string.format("#Chatter - Model: %s", self.current_model or "Not Selected")
---   local padding = math.floor((self.config.sidebar_width - #title) / 2)
---   table.insert(lines, string.rep(" ", padding) .. title)
---   table.insert(lines, "")
---   table.insert(lines, "Hint: press `i` to send message.")
---   table.insert(lines, "Hint: press `<C-c>` to clear chat.")
---   table.insert(lines, "Hint: press `<C-r>` to reload and select model again + <C-c> to refresh chat.")
---   table.insert(lines, string.rep("=", self.config.sidebar_width))
---
---   for _, msg in ipairs(self.chat_history) do
---     table.insert(lines, string.format("### %s:", msg.role:upper()))
---     for _, line in ipairs(vim.split(msg.content, "\n")) do
---       if line:match("^```%w*%s*$") then
---         table.insert(lines, line)
---       elseif line:match("^```$") then
---         table.insert(lines, line)
---       else
---         table.insert(lines, "  " .. line)
---       end
---     end
---     table.insert(lines, "")
---   end
---
---   -- Add an empty line for the loading animation
---   table.insert(lines, "")
---
---   api.nvim_buf_set_option(self.sidebar_bufnr, "modifiable", true)
---   api.nvim_buf_set_lines(self.sidebar_bufnr, 0, -1, false, lines)
---   api.nvim_buf_set_option(self.sidebar_bufnr, "modifiable", false)
---
---   -- Apply syntax highlighting
---   api.nvim_buf_set_option(self.sidebar_bufnr, "filetype", "markdown")
---
---   -- Custom highlighting
---   api.nvim_buf_add_highlight(self.sidebar_bufnr, -1, self.config.highlight.title, 0, 0, -1)
---   local line_num = 6 -- Start after the header
---   for _, msg in ipairs(self.chat_history) do
---     api.nvim_buf_add_highlight(self.sidebar_bufnr, -1, self.config.highlight[msg.role], line_num, 0, -1)
---     line_num = line_num + #vim.split(msg.content, "\n") + 2 -- +2 for the role line and empty line
---   end
---
---   if self.sidebar_winid and api.nvim_win_is_valid(self.sidebar_winid) then
---     local last_line = api.nvim_buf_line_count(self.sidebar_bufnr)
---     pcall(api.nvim_win_set_cursor, self.sidebar_winid, { last_line, 0 })
---   end
--- end
+function Chatter:get_buffer_context()
+  local current_buf = api.nvim_get_current_buf()
+  local lines = api.nvim_buf_get_lines(current_buf, 0, -1, false)
+  local ft = vim.bo[current_buf].filetype
+  local filename = vim.fn.expand('%:t')
+  
+  return string.format("File: %s (%s)\n\nContent:\n```%s\n%s\n```",
+    filename,
+    ft,
+    ft,
+    table.concat(lines, '\n')
+  )
+end
 
 function Chatter:prompt_user_input()
   local input_bufnr = api.nvim_create_buf(false, true)
   local input_winid = api.nvim_open_win(input_bufnr, true, {
     relative = 'editor',
     width = self.config.sidebar_width,
-    height = 2,
+    height = 10, -- Increased height for multiline
     col = vim.o.columns - self.config.sidebar_width,
-    row = vim.o.lines - 8,
+    row = vim.o.lines - 16,
     style = 'minimal',
     border = 'rounded',
-    title = "(Prompt)",
+    title = " Prompt (Ctrl+Enter to send) ",
     title_pos = "center",
   })
 
-  api.nvim_set_option_value("buftype", "prompt", { buf = input_bufnr })
-  vim.fn.prompt_setprompt(input_bufnr, "|>_<|: ")
+  -- Set buffer options for multiline editing
+  api.nvim_buf_set_option(input_bufnr, 'buftype', 'prompt')
+  vim.fn.prompt_setprompt(input_bufnr, "🤖 > ")
 
-  vim.fn.prompt_setcallback(input_bufnr, function(message)
-    if message and message ~= "" then
-      self:send_chat_message(message)
-    end
-    api.nvim_win_close(input_winid, true)
-    api.nvim_set_current_win(self.sidebar_winid)
-  end)
+  -- Add buffer context to the message
+  local context = self:get_buffer_context()
+  
+  -- Set up key mappings
+  local opts = { noremap = true, silent = true }
+  api.nvim_buf_set_keymap(input_bufnr, 'i', '<C-CR>', [[<Cmd>lua require('chatter').send_current_prompt()<CR>]], opts)
+  api.nvim_buf_set_keymap(input_bufnr, 'n', '<C-CR>', [[<Cmd>lua require('chatter').send_current_prompt()<CR>]], opts)
 
+  vim.b[input_bufnr].chatter_context = context
   vim.cmd("startinsert!")
 end
 
@@ -423,6 +419,19 @@ function Chatter:setup()
       self:kill_all_ollama_models()
     end,
   })
+
+  -- Set up additional keymaps
+  if self.config.features.inline_completion then
+    vim.keymap.set('i', self.config.keymaps.inline_completion, 
+      function() self:suggest_inline_completion() end)
+  end
+  
+  if self.config.features.code_actions then
+    vim.keymap.set('n', self.config.keymaps.code_actions,
+      function() self:show_code_actions() end)
+    vim.keymap.set('n', self.config.keymaps.explain_code,
+      function() self:explain_code() end)
+  end
 end
 
 function Chatter:toggle()
@@ -431,6 +440,49 @@ function Chatter:toggle()
   else
     self:open_chat_sidebar()
   end
+end
+
+-- Add new methods for enhanced features
+function Chatter:suggest_inline_completion()
+  local current_line = api.nvim_get_current_line()
+  local cursor_pos = api.nvim_win_get_cursor(0)[2]
+  local prefix = string.sub(current_line, 1, cursor_pos)
+  
+  -- Get completion suggestions from the model
+  self:send_chat_message({
+    role = "user",
+    content = "Complete this line: " .. prefix,
+    context = self:get_buffer_context(),
+    callback = function(response)
+      -- Show completion popup
+      vim.fn.complete(cursor_pos + 1, {response})
+    end
+  })
+end
+
+function Chatter:show_code_actions()
+  local context = self:get_buffer_context()
+  
+  -- Get code actions from the model
+  self:send_chat_message({
+    role = "user",
+    content = "Suggest improvements for this code",
+    context = context,
+    callback = function(response)
+      -- Show actions in a floating window
+      -- Implementation here
+    end
+  })
+end
+
+function Chatter:explain_code()
+  local context = self:get_buffer_context()
+  
+  self:send_chat_message({
+    role = "user",
+    content = "Explain what this code does",
+    context = context
+  })
 end
 
 -- Create a single instance of Chatter

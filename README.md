@@ -2,7 +2,6 @@
 
 chatter.nvim is a Neovim plugin that provides a chat interface powered by AI models. It allows users to interact with AI models seamlessly within Neovim, featuring a sidebar for chat history, code block highlighting, and more.
 
-
 ![chatter_models](https://github.com/user-attachments/assets/d0623ba8-1e95-4881-9c34-48d491de3770)
 ![chatter_prompt](https://github.com/user-attachments/assets/e62525fe-c34f-4e87-87b5-7aca3479c524)
 ![chatter_loading](https://github.com/user-attachments/assets/7a77e8bb-9098-470d-bd26-cebfd2d668fd)
@@ -22,7 +21,6 @@ chatter.nvim is a Neovim plugin that provides a chat interface powered by AI mod
 - `ollama` installed on your os.
 - `fzf-lua` for selection of local LLMs.
 
-
 ## Installation
 
 ### Using Lazy.nvim
@@ -32,6 +30,7 @@ To install chatter.nvim with `lazy.nvim`, add the following to your Neovim confi
 ```lua
 {
     "Dan7h3x/chatter.nvim",
+  branch = "main",
     event = "VeryLazy",
     dependencies = {
       'nvim-lua/plenary.nvim',
@@ -82,7 +81,6 @@ require("chatter").setup()
 4. [WIP] **Copy Code Blocks**: Navigate to a code block and press `yc` to copy it to the clipboard.
 5. **Clear Chat**: Use the command `:ChatterClear` to clear the chat history.
 
-
 ## Key Mappings
 
 The following key mappings are available by default:
@@ -94,6 +92,7 @@ The following key mappings are available by default:
 - `<C-r>`: Reload the `chatter.nvim` for selecting another model.
 
 Available commands are `ChatterStart`,`ChatterToggle`,`ChatterClear`,`ChatterRestart`,`ChatterSend`.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit issues or pull requests. Make sure to follow the [contribution guidelines](CONTRIBUTING.md).
